@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.R.layout.*;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -27,6 +28,7 @@ import com.parse.SaveCallback;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.R.*;
 import static android.R.layout.*;
@@ -36,24 +38,9 @@ public class EditNames extends AppCompatActivity {
     ArrayList<String> menu = new ArrayList<>();
     EditText alertEdit;
     Editable value;
+    boolean changedScore = false;
+    final int[] finalScore = new int[1];
 
-    public class Details extends AsyncTask<Void, Void, Void> {
-
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-
-
-            super.onPostExecute(aVoid);
-
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,17 +50,12 @@ public class EditNames extends AppCompatActivity {
 
         int pid = android.os.Process.myPid();
         String whiteList = "logcat -P '" + pid + "'";
-        try {
-            Runtime.getRuntime().exec(whiteList).waitFor();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         EditNames dn = new EditNames();
         menu.add("change name");
         menu.add("change password");
         menu.add("change phone number");
+        menu.add("View Balance");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, simple_list_item_1, menu);
         mainFunc.setAdapter(adapter);
 
@@ -81,9 +63,44 @@ public class EditNames extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                alert(position);
+                if (position != 3) {
+                    alert(position);
+                } else {
+                    view();
+                }
             }
         });
+
+    }
+
+    public void view() {
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("score");
+        query.whereEqualTo("username", "Arun");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (changedScore == false) {
+                    if (objects.size() > 0) {
+
+                        for (ParseObject object : objects) {
+                            if (object.getInt("score") > 30) {
+                                int score = object.getInt("score") + 10;
+                                object.put("score", score);
+                                object.saveInBackground();
+                                changedScore = true;
+                                Log.i("Your final score is ", String.valueOf(object.getInt("score")));
+                                finalScore[0] = object.getInt("score");
+                                Toast.makeText(EditNames.this, "Your Updated Score is " + Integer.toString(finalScore[0]), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(EditNames.this, "Your Updated Score is " + Integer.toString(finalScore[0]), Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+
 
     }
 

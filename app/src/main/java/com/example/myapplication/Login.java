@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.KeyboardShortcutInfo;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -22,7 +24,7 @@ import com.parse.ParseUser;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
-public class Login extends AppCompatActivity {
+public class Login extends AppCompatActivity implements View.OnKeyListener {
 
     EditText name;
     EditText password;
@@ -52,6 +54,7 @@ public class Login extends AppCompatActivity {
 
         name = (EditText) findViewById(R.id.nameLogin);
         password = (EditText) findViewById(R.id.passwordLogin);
+        password.setOnKeyListener(this);
     }
 
     private void alertDisplayer(String title, String message) {
@@ -103,6 +106,17 @@ public class Login extends AppCompatActivity {
         Intent intent = new Intent(Login.this, MainActivity.class);
         startActivity(intent);
 
+    }
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+        if(keyCode== KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)
+        {
+            OnLogin(v);
+
+        }
+        return false;
     }
 }
 
